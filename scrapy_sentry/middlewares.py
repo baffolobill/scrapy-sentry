@@ -4,7 +4,7 @@ import sys
 from scrapy import log
 from scrapy.conf import settings
 
-from utils import get_client
+from .utils import get_client
 
 class SentryMiddleware(object):
     def __init__(self, dsn=None, client=None):

@@ -9,15 +9,16 @@ from scrapy.http import Request, Headers
 from scrapy.utils.reqser import request_to_dict, request_from_dict
 from scrapy.responsetypes import responsetypes
 
-from raven import Client
 from raven.conf import setup_logging
 from raven.handlers.logging import SentryHandler
+
+from pydoc import locate
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
 
 def get_client(dsn=None):
-    """gets a scrapy client"""
-    return Client(dsn or settings.get("SENTRY_DSN", SENTRY_DSN))
+    klass = locate(settings.get('SENTRY_CLIENT', 'raven.Client'))
+    return klass(dsn or settings.get("SENTRY_DSN", SENTRY_DSN))
 
 def init(dsn=None):
     """Redirect Scrapy log messages to standard Python logger"""

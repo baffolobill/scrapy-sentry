@@ -9,9 +9,7 @@ from scrapy import signals, log
 from scrapy.mail import MailSender
 from scrapy.exceptions import NotConfigured
 
-from raven import Client
-
-from utils import get_client, response_to_dict
+from .utils import get_client, response_to_dict
 
 class Log(object):
     def __init__(self, dsn=None, *args, **kwargs):
@@ -27,7 +25,7 @@ class Log(object):
 
 class Signals(object):
     def __init__(self, client=None, dsn=None, **kwargs):
-        self.client = client if client else Client(dsn)
+        self.client = client if client else get_client(dsn)
 
     @classmethod
     def from_crawler(cls, crawler, client=None, dsn=None):
@@ -59,7 +57,7 @@ class Signals(object):
 
 class Errors(object):
     def __init__(self, dsn=None, client=None, **kwargs):
-        self.client = client if client else Client(dsn)
+        self.client = client if client else get_client(dsn)
 
     @classmethod
     def from_crawler(cls, crawler, client=None, dsn=None):
@@ -71,8 +69,8 @@ class Errors(object):
         return o
 
     def spider_error(self, failure, response, spider, signal=None, sender=None, *args, **kwargs):
-        import StringIO
-        traceback = StringIO.StringIO()
+        from six import StringIO
+        traceback = StringIO()
         failure.printTraceback(file=traceback)
 
         message = signal

@@ -1,4 +1,4 @@
 # Redirect Scrapy log messages to standard Python logger
  
-from utils import init
+from .utils import init
 
