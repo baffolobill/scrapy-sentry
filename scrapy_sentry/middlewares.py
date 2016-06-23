@@ -16,11 +16,14 @@ class SentryMiddleware(RavenClient):
         extra = {
                 'spider': spider.name if spider else "",
             }
-        msg = self.raven_client.captureException(exc_info=sys.exc_info(), extra=extra)
-        ident = self.raven_client.get_ident(msg)
+        try:
+            raise exception
+        except:
+            msg = self.raven_client.captureException(exc_info=sys.exc_info(), extra=extra)
+            ident = self.raven_client.get_ident(msg)
 
-        l = spider.log if spider else log.msg
-        l("Sentry Exception ID '%s'" % ident, level=log.INFO)
+            l = spider.log if spider else log.msg
+            l("Sentry Exception ID '%s'" % ident, level=log.INFO)
 
         return None
         
@@ -31,4 +34,3 @@ class SentryMiddleware(RavenClient):
     def process_spider_exception(self, response, exception, spider):
         return self.trigger(exception, spider, 
                             extra={"spider":spider, "response":response})
-
