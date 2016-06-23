@@ -1,28 +1,23 @@
-import os
 import sys
 
 from scrapy import log
-from scrapy.conf import settings
 
-from .utils import get_client
+from .utils import RavenClient
 
-class SentryMiddleware(object):
-    def __init__(self, dsn=None, client=None):
-        self.client = client if client else get_client(dsn)
+
+class SentryMiddleware(RavenClient):
 
     @classmethod
     def from_crawler(cls, crawler):
-        dsn = os.environ.get("SENTRY_DSN", crawler.settings.get("SENTRY_DSN", None))
-        if dsn is None:
-            raise NotConfigured('No SENTRY_DSN configured')
-        return cls(dsn)
+        cls.raven_client = super().from_crawler(crawler)
+        return cls()
 
     def trigger(self, exception, spider=None, extra={}):
         extra = {
                 'spider': spider.name if spider else "",
             }
-        msg = self.client.captureException(exc_info=sys.exc_info(), extra=extra)
-        ident = self.client.get_ident(msg)
+        msg = self.raven_client.captureException(exc_info=sys.exc_info(), extra=extra)
+        ident = self.raven_client.get_ident(msg)
 
         l = spider.log if spider else log.msg
         l("Sentry Exception ID '%s'" % ident, level=log.INFO)
