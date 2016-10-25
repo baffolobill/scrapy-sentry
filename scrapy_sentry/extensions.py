@@ -11,9 +11,7 @@ from scrapy import signals, log
 from scrapy.mail import MailSender  # noqa
 from scrapy.exceptions import NotConfigured
 
-from raven import Client
-
-from .utils import init, response_to_dict
+from .utils import init, response_to_dict, get_client
 
 
 class Log(object):
@@ -31,7 +29,7 @@ class Log(object):
 
 class Signals(object):
     def __init__(self, client=None, dsn=None, **kwargs):
-        self.client = client if client else Client(dsn)
+        self.client = client if client else get_client(dsn)
 
     @classmethod
     def from_crawler(cls, crawler, client=None, dsn=None):
@@ -62,7 +60,7 @@ class Signals(object):
 
 class Errors(object):
     def __init__(self, dsn=None, client=None, **kwargs):
-        self.client = client if client else Client(dsn)
+        self.client = client if client else get_client(dsn)
 
     @classmethod
     def from_crawler(cls, crawler, client=None, dsn=None):

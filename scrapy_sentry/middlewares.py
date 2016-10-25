@@ -4,10 +4,9 @@ import os
 import sys
 
 from scrapy import log
-from scrapy.conf import settings  # noqa
 from scrapy.exceptions import NotConfigured
 
-from .utils import get_client
+from .utils import get_client, settings  # noqa
 
 
 class SentryMiddleware(object):

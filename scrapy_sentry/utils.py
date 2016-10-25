@@ -4,7 +4,13 @@ import logging
 
 from twisted.python import log
 
-from scrapy.conf import settings
+try:
+    from scrapy.utils.project import get_project_settings
+except ImportError:
+    from scrapy.conf import settings
+else:
+    settings = get_project_settings()
+
 from scrapy.http import Request, Headers  # noqa
 from scrapy.utils.reqser import request_to_dict, request_from_dict  # noqa
 from scrapy.responsetypes import responsetypes
