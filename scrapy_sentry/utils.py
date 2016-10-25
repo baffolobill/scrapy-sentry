@@ -1,6 +1,7 @@
 import os
 import time
 import logging
+from importlib import import_module
 
 from twisted.python import log
 
@@ -15,15 +16,40 @@ from scrapy.http import Request, Headers  # noqa
 from scrapy.utils.reqser import request_to_dict, request_from_dict  # noqa
 from scrapy.responsetypes import responsetypes
 
-from raven import Client
 from raven.conf import setup_logging
 from raven.handlers.logging import SentryHandler
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
 
 
+def import_member(path):
+    """
+    Loads a value from a module specified by an absolute path.
+
+    E.g.:
+
+    >>> import_object('raven.Client')
+    <class 'raven.base.Client'>
+    """
+    try:
+        module_path, member_name = path.rsplit('.', 1)
+    except ValueError:
+        raise ValueError("Import path {} doesn\'t include a dot.".format(path))
+
+    module = import_module(module_path)
+
+    try:
+        member = getattr(module, member_name)
+    except AttributeError:
+        raise NameError("Module {} doesn't define {}".format(module_path, member_name))
+
+    return member
+
+
 def get_client(dsn=None):
     """gets a scrapy client"""
+    sentry_client_path = settings.get('SENTRY_CLIENT', 'raven.Client')
+    Client = import_member(sentry_client_path)
     return Client(dsn or settings.get("SENTRY_DSN", SENTRY_DSN))
 
 
