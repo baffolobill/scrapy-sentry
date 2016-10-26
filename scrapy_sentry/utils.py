@@ -64,7 +64,14 @@ def init(dsn=None):
         assert isinstance(dict_config, dict)
         logging.dictConfig(dict_config)
 
-    handler = SentryHandler(dsn)
+    sentry_loglevel = settings.get("SENTRY_LOGLEVEL")
+
+    if sentry_loglevel:
+        handler_kwargs = {'level': sentry_loglevel}
+    else:
+        handler_kwargs = {}
+
+    handler = SentryHandler(get_client(dsn), **handler_kwargs)
     setup_logging(handler)
 
 
