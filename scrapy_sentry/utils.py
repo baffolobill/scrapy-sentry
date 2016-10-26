@@ -1,6 +1,6 @@
 import os
 import time
-import logging
+from logging.config import dictConfig
 from importlib import import_module
 
 from twisted.python import log
@@ -62,7 +62,7 @@ def init(dsn=None):
     dict_config = settings.get("LOGGING")
     if dict_config is not None:
         assert isinstance(dict_config, dict)
-        logging.dictConfig(dict_config)
+        dictConfig(dict_config)
 
     sentry_loglevel = settings.get("SENTRY_LOGLEVEL")
 
