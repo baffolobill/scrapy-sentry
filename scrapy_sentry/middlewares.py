@@ -1,6 +1,5 @@
+import logging
 import sys
-
-from scrapy import log
 
 from .utils import RavenClient
 
@@ -23,7 +22,7 @@ class SentryMiddleware(RavenClient):
             ident = self.raven_client.get_ident(msg)
 
             l = spider.log if spider else log.msg
-            l("Sentry Exception ID '%s'" % ident, level=log.INFO)
+            l("Sentry Exception ID '%s'" % ident, level=logging.INFO)
 
         return None
         

@@ -3,9 +3,10 @@ Send signals to Sentry
 
 Use SENTRY_DSN setting to enable sending information
 """
+import logging
 import os
 
-from scrapy import signals, log
+from scrapy import signals
 from scrapy.mail import MailSender
 from scrapy.exceptions import NotConfigured
 
@@ -77,8 +78,8 @@ class Errors(RavenClient):
             
         ident = self.raven_client.get_ident(msg)
 
-        l = spider.log if spider else log.msg
-        l("Sentry Exception ID '%s'" % ident, level=log.INFO)
+        l = spider.log if spider else ""
+        l("Sentry Exception ID '%s'" % ident, level=logging.INFO)
 
         return ident
 
