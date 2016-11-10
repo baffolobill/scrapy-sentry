@@ -4,7 +4,6 @@ import logging
 
 from twisted.python import log
 
-from scrapy.conf import settings
 from scrapy.exceptions import NotConfigured
 from scrapy.http import Request, Headers
 from scrapy.utils.reqser import request_to_dict, request_from_dict
@@ -17,19 +16,21 @@ from raven.handlers.logging import SentryHandler
 from pydoc import locate
 
 
+'''
 def init(dsn=None):
     """Redirect Scrapy log messages to standard Python logger"""
 
     observer = log.PythonLoggingObserver()
     observer.start()
 
-    dict_config = settings.get("LOGGING")
+    dict_config = crawler.settings.get("LOGGING")
     if dict_config is not None:
         assert isinstance(dict_config, dict)
         logging.dictConfig(dict_config)
 
     handler = SentryHandler(dsn)
     setup_logging(handler)
+'''
 
 
 def response_to_dict(response, spider, include_request=True, **kwargs):
@@ -84,4 +85,3 @@ class RavenClient(object):
         klass = locate(raven_class)
         crawler.raven_client = klass(dsn=dsn)
         return crawler.raven_client
-
