@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 import os
+import sys
 
 from scrapy import log
 from scrapy.exceptions import NotConfigured
@@ -24,8 +25,19 @@ class SentryMiddleware(object):
         extra = {
             'spider': spider.name if spider else "",
         }
-        msg = self.client.captureException(
-            exc_info=exception, extra=extra)
+
+        exc_info = sys.exc_info()
+        has_current_exc = exc_info and exc_info[0] is not None
+
+        if has_current_exc:
+            msg = self.client.captureException(
+                exc_info=exc_info, extra=extra)
+        else:
+            msg = self.client.captureMessage(
+                message=repr(exception),
+                extra=extra
+            )
+
         ident = self.client.get_ident(msg)
 
         l = spider.log if spider else log.msg
