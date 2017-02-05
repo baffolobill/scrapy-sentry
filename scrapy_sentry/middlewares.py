@@ -1,47 +1,29 @@
-from __future__ import absolute_import
-
-import os
+import logging
 import sys
 
 from scrapy import log
-from scrapy.exceptions import NotConfigured
-
-from .utils import get_client, settings  # noqa
+from .utils import RavenClient
 
 
-class SentryMiddleware(object):
-    def __init__(self, dsn=None, client=None):
-        self.client = client if client else get_client(dsn)
+class SentryMiddleware(RavenClient):
 
     @classmethod
     def from_crawler(cls, crawler):
-        dsn = os.environ.get(
-            "SENTRY_DSN", crawler.settings.get("SENTRY_DSN", None))
-        if dsn is None:
-            raise NotConfigured('No SENTRY_DSN configured')
-        return cls(dsn)
+        cls.raven_client = super().from_crawler(crawler)
+        return cls()
 
     def trigger(self, exception, spider=None, extra={}):
         extra = {
-            'spider': spider.name if spider else "",
-        }
+                'spider': spider.name if spider else "",
+            }
+        try:
+            raise exception
+        except:
+            msg = self.raven_client.captureException(exc_info=sys.exc_info(), extra=extra)
+            ident = self.raven_client.get_ident(msg)
 
-        exc_info = sys.exc_info()
-        has_current_exc = exc_info and exc_info[0] is not None
-
-        if has_current_exc:
-            msg = self.client.captureException(
-                exc_info=exc_info, extra=extra)
-        else:
-            msg = self.client.captureMessage(
-                message=repr(exception),
-                extra=extra
-            )
-
-        ident = self.client.get_ident(msg)
-
-        l = spider.log if spider else log.msg
-        l("Sentry Exception ID '%s'" % ident, level=log.INFO)
+            l = spider.log if spider else log.msg
+            l("Sentry Exception ID '%s'" % ident, level=logging.INFO)
 
         return None
 
