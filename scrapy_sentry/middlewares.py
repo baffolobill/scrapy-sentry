@@ -14,8 +14,8 @@ class SentryMiddleware(RavenClient):
 
     def trigger(self, exception, spider=None, extra={}):
         extra = {
-                'spider': spider.name if spider else "",
-            }
+            'spider': spider.name if spider else "",
+        }
         try:
             raise exception
         except:
