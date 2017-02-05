@@ -10,7 +10,7 @@ from scrapy import signals
 from .utils import RavenClient, response_to_dict
 
 
-class Log(RavenClient):
+class Logs(RavenClient):
 
     @classmethod
     def from_crawler(cls, crawler):
